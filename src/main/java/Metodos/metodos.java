@@ -2,6 +2,7 @@ package Metodos;
 
 import Conexion.conexion;
 import Modelo.Lecturas;
+import Modelo.Tablas;
 import Principal.Vista;
 import com.csvreader.CsvReader;
 
@@ -11,9 +12,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -34,6 +33,30 @@ public class metodos extends Vista {
         File RutaOutPut = new File("files\\Output.csv");
         workbook.save(""+RutaOutPut);
         rutaCSV = ""+RutaOutPut;
+    }
+
+    //OBTENER LISTA DE TABLAS
+    public static ArrayList<Tablas> getTablas() {
+        conexion sql = new conexion();
+        Connection con = sql.conectarSQL();
+        Statement ps;
+        ResultSet nT;
+        ArrayList<Tablas> listaTablas = new ArrayList<>();
+        try {
+            ps = con.createStatement();
+            nT = ps.executeQuery("SELECT * FROM Tablas");
+
+            while (nT.next()){
+                Tablas tabla = new Tablas();
+                tabla.setNombre_tabla(nT.getString("nombre_tabla"));
+                listaTablas.add(tabla);
+            }
+            ps.close();
+            nT.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return listaTablas;
     }
 
     //PARA LEER LOS DATOS Y ALMACENARLOS EN UNA LISTA CON SU ESTRUCTURA

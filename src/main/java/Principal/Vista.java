@@ -2,7 +2,6 @@
 package Principal;
 
 import Metodos.metodos;
-import Metodos.Listado;
 import Modelo.Tablas;
 
 import javax.swing.*;
@@ -75,8 +74,7 @@ public class Vista extends JFrame {
     }
 
     public void llenarTablas(){
-        Listado modTablas = new Listado();
-        ArrayList<Tablas> listaTablas = modTablas.getTablas();
+        ArrayList<Tablas> listaTablas = metodos.getTablas();
 
         cbxTablas.removeAllItems();
         for(int i = 0; i < listaTablas.size(); i++){
