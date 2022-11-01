@@ -1,4 +1,7 @@
 package Modelo;
+
+import java.util.Objects;
+
 public class Lecturas {
     String codigo_porcion;
     String uni_lectura;
@@ -167,5 +170,45 @@ public class Lecturas {
     }
     public void setClase_instalacion(String clase_instalacion) {
         this.clase_instalacion = clase_instalacion;
+    }
+
+    @Override
+    public String toString() {
+        return "Lecturas{" +
+                "codigo_porcion='" + codigo_porcion + '\'' +
+                ", uni_lectura='" + uni_lectura + '\'' +
+                ", doc_lectura='" + doc_lectura + '\'' +
+                ", cuenta_contrato='" + cuenta_contrato + '\'' +
+                ", medidor='" + medidor + '\'' +
+                ", lectura_ant='" + lectura_ant + '\'' +
+                ", lectura_act='" + lectura_act + '\'' +
+                ", anomalia_1='" + anomalia_1 + '\'' +
+                ", anomalia_2='" + anomalia_2 + '\'' +
+                ", codigo_operario='" + codigo_operario + '\'' +
+                ", vigencia='" + vigencia + '\'' +
+                ", fecha='" + fecha + '\'' +
+                ", orden_lectura='" + orden_lectura + '\'' +
+                ", leido='" + leido + '\'' +
+                ", calle='" + calle + '\'' +
+                ", edificio='" + edificio + '\'' +
+                ", suplemento_casa='" + suplemento_casa + '\'' +
+                ", interloc_comercial='" + interloc_comercial + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", clase_instalacion='" + clase_instalacion + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lecturas lecturas = (Lecturas) o;
+        return Objects.equals(codigo_porcion, lecturas.codigo_porcion) && Objects.equals(uni_lectura, lecturas.uni_lectura) && Objects.equals(doc_lectura, lecturas.doc_lectura) && Objects.equals(cuenta_contrato, lecturas.cuenta_contrato) && Objects.equals(medidor, lecturas.medidor) && Objects.equals(lectura_ant, lecturas.lectura_ant) && Objects.equals(lectura_act, lecturas.lectura_act) && Objects.equals(anomalia_1, lecturas.anomalia_1) && Objects.equals(anomalia_2, lecturas.anomalia_2) && Objects.equals(codigo_operario, lecturas.codigo_operario) && Objects.equals(vigencia, lecturas.vigencia) && Objects.equals(fecha, lecturas.fecha) && Objects.equals(orden_lectura, lecturas.orden_lectura) && Objects.equals(leido, lecturas.leido) && Objects.equals(calle, lecturas.calle) && Objects.equals(edificio, lecturas.edificio) && Objects.equals(suplemento_casa, lecturas.suplemento_casa) && Objects.equals(interloc_comercial, lecturas.interloc_comercial) && Objects.equals(apellido, lecturas.apellido) && Objects.equals(nombre, lecturas.nombre) && Objects.equals(clase_instalacion, lecturas.clase_instalacion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(codigo_porcion, uni_lectura, doc_lectura, cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion);
     }
 }

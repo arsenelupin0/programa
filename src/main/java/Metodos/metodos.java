@@ -13,12 +13,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class metodos extends Vista {
 
-    //LLAMANDO METODOS
+    //METODO QUE LLAMA OTROS METODOS
     public static void metodoImportar(){
         List<Lecturas> ciclo = new ArrayList<Lecturas>();
         ciclo = importarCSV();
@@ -91,60 +95,22 @@ public class metodos extends Vista {
             }
             leerLecturas.close();
 
-            System.out.println("\nLISTA CVS\n");
-            for (Lecturas lec: ciclo){
-                System.out.println(
-                        lec.getCodigo_porcion()+", "+
-                        lec.getUni_lectura()+", "+
-                        lec.getDoc_lectura()+", "+
-                        lec.getCuenta_contrato()+", "+
-                        lec.getMedidor()+", "+
-                        lec.getLectura_ant()+", "+
-                        lec.getLectura_act()+", "+
-                        lec.getAnomalia_1()+", "+
-                        lec.getAnomalia_2()+", "+
-                        lec.getCodigo_operario()+", "+
-                        lec.getVigencia()+", "+
-                        lec.getFecha()+", "+
-                        lec.getOrden_lectura()+", "+
-                        lec.getLeido()+", "+
-                        lec.getCalle()+", "+
-                        lec.getEdificio()+ ", "+
-                        lec.getSuplemento_casa()+", " +
-                        lec.getInterloc_comercial()+", "+
-                        lec.getApellido()+", "+
-                        lec.getNombre()+", "+
-                        lec.getClase_instalacion()
-                );
-            }
+            //NUEVA LISTA COMPLETA SIN DATOS REPETIDOS
+            System.out.println("COMPLETOS SIN REPETIDOS:");
+            List<Lecturas> completa = ciclo.stream().distinct().collect(Collectors.toList());
+            completa.forEach(System.out::println);
 
-            //
-            int input;
-            int out;
-            int i = 0;
-            int j = 1;
+            //NUEVA LISTA DE DATOS REPETIDOS
+            Set<Lecturas> repetidos = new HashSet<>();
+            Set<Lecturas> repetidosFinal = ciclo.stream().filter(lectura -> !repetidos.add(lectura)).collect(Collectors.toSet());
+            System.out.println("REPETIDOS:");
+            repetidosFinal.forEach(System.out::println);
 
-            for (i = 0; i < j; i++) {
-                if (j <= ciclo.size()) {
-                    input = Integer.parseInt(ciclo.get(i).getDoc_lectura());
-                    out = Integer.parseInt(ciclo.get(j).getDoc_lectura());
-                    System.out.println(i);
-                    System.out.println(j);
-                    if (input == out) {
-                        List<Lecturas> repetidos = new ArrayList<Lecturas>();
-                        System.out.println("DATO REPETIDO I: " + input + " = O: " + out);
-                    } else {
-                        j = j + 1;
-                    }
-                }
-            }
-            //
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return ciclo;
     }
 
