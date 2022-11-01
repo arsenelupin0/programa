@@ -119,10 +119,24 @@ public class metodos extends Vista {
             }
 
             //
-            for (Lecturas lec: ciclo){
-                System.out.println(
-                    lec.getDoc_lectura()
-                );
+            int input;
+            int out;
+            int i = 0;
+            int j = 1;
+
+            for (i = 0; i < j; i++) {
+                if (j <= ciclo.size()) {
+                    input = Integer.parseInt(ciclo.get(i).getDoc_lectura());
+                    out = Integer.parseInt(ciclo.get(j).getDoc_lectura());
+                    System.out.println(i);
+                    System.out.println(j);
+                    if (input == out) {
+                        List<Lecturas> repetidos = new ArrayList<Lecturas>();
+                        System.out.println("DATO REPETIDO I: " + input + " = O: " + out);
+                    } else {
+                        j = j + 1;
+                    }
+                }
             }
             //
         } catch (FileNotFoundException e) {
