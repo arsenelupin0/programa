@@ -24,7 +24,7 @@ public class Vista extends JFrame {
         setContentPane(mainPanel);
         setTitle("ACUEDUCTO");
         //setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Imagenes/Icono.png")).getImage());
-        setSize(700, 150);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -59,9 +59,9 @@ public class Vista extends JFrame {
                         JOptionPane.showMessageDialog(null,"SELECCIONE UN ARCHIVO");
                     } else {
                         metodos.metodoImportar();
+                        metodos.ConvertirCSV();
                     }
                 } catch (Exception exc){
-                    JOptionPane.showMessageDialog(null,"SELECCIONE UN ARCHIVO");
                 }
             }
         });

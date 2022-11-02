@@ -1,6 +1,6 @@
 package Principal;
 
-import Conexion.conexion;
+import Conexiones.conexion_lectura;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -28,7 +28,7 @@ public class cTabla extends JFrame {
                 /*if (tfNTabla.getText() == null) {
                     JOptionPane.showMessageDialog(null, "NO SE PUEDE CREAR LA TABLA SIN NOMBRE");
                 } else {*/
-                    conexion sql = new conexion();
+                    conexion_lectura sql = new conexion_lectura();
                     Connection con = sql.conectarSQL();
                     String queryCreate = "CREATE TABLE L2024(codigo_porcion STRING,uni_lectura STRING,doc_lectura INT PRIMARY KEY UNIQUE,cuenta_contrato INT,medidor STRING,lectura_ant INT,lectura_act INT,anomalia_1 INT,anomalia_2 INT,codigo_operario STRING,vigencia INT,fecha DATETIME,orden_lectura INT,leido INT,calle STRING,edificio INT,suplemento_casa STRING,interloc_comercial STRING,apellido STRING,nombre STRING, clase_instalacion INT);\n";
                     String queryInsert = "INSERT INTO Tablas " + tfNTabla.getText();

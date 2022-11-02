@@ -1,32 +1,31 @@
 package Metodos;
 
-import Conexion.conexion;
+import Conexiones.conexion_lectura;
 import Modelo.Lecturas;
 import Modelo.Tablas;
 import Principal.Vista;
-import com.csvreader.CsvReader;
 
+import com.aspose.cells.SaveFormat;
+import com.csvreader.CsvReader;
 import com.aspose.cells.Workbook;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class metodos extends Vista {
 
     //METODO QUE LLAMA OTROS METODOS
     public static void metodoImportar(){
-        List<Lecturas> ciclo = new ArrayList<Lecturas>();
-        ciclo = importarCSV();
-        //insertarSQL(ciclo);
+        List<Lecturas> datos = new ArrayList<Lecturas>();
+        List<Lecturas> datosRepetidos = new ArrayList<Lecturas>();
+        datos = importarCSV();
+        insertarSQL(datos);
     }
 
     //METODOS
@@ -34,14 +33,19 @@ public class metodos extends Vista {
     //CONVERTIR ARCHIVO XLSX A CSV PARA LEER LOS DATOS MAS FACILMENTE
     public static void ConvertirXLSX () throws Exception {
         Workbook workbook = new Workbook(rutaXLSX);
-        File RutaOutPut = new File("files\\Output.csv");
+        File RutaOutPut = new File("files\\Importe.csv");
         workbook.save(""+RutaOutPut);
         rutaCSV = ""+RutaOutPut;
+    }
+    //CONVERTIR ARCHIVO CSV A XLMX PARA VISUALIZAR DE MANERA MAS OPTIMA LOS DATOS REPETIDOS
+    public static void ConvertirCSV () throws Exception {
+        Workbook wb = new Workbook("files\\Repetidos.csv");
+        wb.save("files\\Repetidos.xlsx", SaveFormat.XLSX);
     }
 
     //OBTENER LISTA DE TABLAS
     public static ArrayList<Tablas> getTablas() {
-        conexion sql = new conexion();
+        conexion_lectura sql = new conexion_lectura();
         Connection con = sql.conectarSQL();
         Statement ps;
         ResultSet nT;
@@ -65,7 +69,7 @@ public class metodos extends Vista {
 
     //PARA LEER LOS DATOS Y ALMACENARLOS EN UNA LISTA CON SU ESTRUCTURA
     public static List<Lecturas> importarCSV(){
-        List<Lecturas> ciclo = new ArrayList<Lecturas>();
+        List<Lecturas> datos = new ArrayList<Lecturas>();
         try {
             CsvReader leerLecturas = new CsvReader(rutaCSV);
             leerLecturas.readHeaders();
@@ -91,31 +95,62 @@ public class metodos extends Vista {
                 String apellido = leerLecturas.get(18);
                 String nombre = leerLecturas.get(19);
                 String clase_instalacion = leerLecturas.get(20);
-                ciclo.add(new Lecturas(codigo_porcion, uni_lectura, doc_lectura, cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion));
+                datos.add(new Lecturas(codigo_porcion, uni_lectura, doc_lectura, cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion));
             }
             leerLecturas.close();
 
             //NUEVA LISTA COMPLETA SIN DATOS REPETIDOS
             System.out.println("COMPLETOS SIN REPETIDOS:");
-            List<Lecturas> completa = ciclo.stream().distinct().collect(Collectors.toList());
+            List<Lecturas> completa = datos.stream().distinct().collect(Collectors.toList());
             completa.forEach(System.out::println);
 
             //NUEVA LISTA DE DATOS REPETIDOS
             Set<Lecturas> repetidos = new HashSet<>();
-            Set<Lecturas> repetidosFinal = ciclo.stream().filter(lectura -> !repetidos.add(lectura)).collect(Collectors.toSet());
+            List<Lecturas> repetidosFinal = datos.stream().filter(lectura -> !repetidos.add(lectura)).collect(Collectors.toList());
             System.out.println("REPETIDOS:");
             repetidosFinal.forEach(System.out::println);
+
+            File csvFile = new File("files\\Repetidos.csv");
+            PrintWriter write = new PrintWriter(csvFile);
+            String estructura = "COD_PORCION,COD_UNILEC,ID_DOC_LECTURA,CUENTA_CONTRATO,NUM_MEDIDOR,LEC_ANTERIOR,LEC_ACTUAL,COD_EVENTO1,COD_EVENTO2,COD_OPERARIO,VIGENCIA,\"TO_CHAR(REG_LECTURAS.FECHAEJE,'DD/MM/YYYYHH:MI:SSAM')\",ORDEN_LECTURA,LEIDO,CALLE,EDIFICIO,SUPLEM_CASA,INTERLOC_COMER,APELLIDO,NOMBRE2,CLASE_INSTALA";
+            write.println(estructura);
+            for (int j = 0; j < repetidosFinal.size(); j++){
+                write.print(repetidosFinal.get(j).getCodigo_porcion()+",");
+                write.print(repetidosFinal.get(j).getUni_lectura()+",");
+                write.print(repetidosFinal.get(j).getDoc_lectura()+",");
+                write.print(repetidosFinal.get(j).getCuenta_contrato()+",");
+                write.print(repetidosFinal.get(j).getMedidor()+",");
+                write.print(repetidosFinal.get(j).getLectura_ant()+",");
+                write.print(repetidosFinal.get(j).getLectura_act()+",");
+                write.print(repetidosFinal.get(j).getAnomalia_1()+",");
+                write.print(repetidosFinal.get(j).getAnomalia_2()+",");
+                write.print(repetidosFinal.get(j).getCodigo_operario()+",");
+                write.print(repetidosFinal.get(j).getVigencia()+",");
+                write.print(repetidosFinal.get(j).getFecha()+",");
+                write.print(repetidosFinal.get(j).getOrden_lectura()+",");
+                write.print(repetidosFinal.get(j).getLeido()+",");
+                write.print(repetidosFinal.get(j).getCalle()+",");
+                write.print(repetidosFinal.get(j).getEdificio()+",");
+                write.print(repetidosFinal.get(j).getSuplemento_casa()+",");
+                write.print(repetidosFinal.get(j).getInterloc_comercial()+",");
+                write.print(repetidosFinal.get(j).getApellido()+",");
+                write.print(repetidosFinal.get(j).getNombre()+",");
+                write.print(repetidosFinal.get(j).getClase_instalacion());
+                write.println();
+            }
+            write.close();
+            datos = completa;
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ciclo;
+        return datos;
     }
 
     // PARA INSERTAR LOS DATOS A LA BASE DE DATOS
-    public static void insertarSQL(List<Lecturas> ciclo) {
+    public static void insertarSQL(List<Lecturas> datos) {
         JPanel p1 = new JPanel(new BorderLayout());
         JFrame frame = new JFrame(p1.getGraphicsConfiguration());
         p1.add(new JLabel("CARGANDO REGISTROS. POR FAVOR, ESPERE...\n"), BorderLayout.CENTER);
@@ -127,43 +162,46 @@ public class metodos extends Vista {
         frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         frame.setVisible(true);
 
-
-        System.out.println("SE VAN A INSERTAR: " + ciclo.size() + " REGISTROS\n");
-        conexion sql = new conexion();
+        System.out.println("SE VAN A INSERTAR: " + datos.size() + " REGISTROS\n");
+        conexion_lectura sql = new conexion_lectura();
         Connection con = sql.conectarSQL();
         String query = "INSERT INTO "+valueCBXT+"(codigo_porcion, uni_lectura, doc_lectura, cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try {
             PreparedStatement ps = (PreparedStatement) con.prepareStatement(query);
-            for(int i = 0; i < ciclo.size(); i++) {
-                ps.setString(1, ciclo.get(i).getCodigo_porcion());
-                ps.setString(2, ciclo.get(i).getUni_lectura());
-                ps.setString(3, ciclo.get(i).getDoc_lectura());
-                ps.setString(4, ciclo.get(i).getCuenta_contrato());
-                ps.setString(5, ciclo.get(i).getMedidor());
-                ps.setString(6, ciclo.get(i).getLectura_ant());
-                ps.setString(7, ciclo.get(i).getLectura_act());
-                ps.setString(8, ciclo.get(i).getAnomalia_1());
-                ps.setString(9, ciclo.get(i).getAnomalia_2());
-                ps.setString(10, ciclo.get(i).getCodigo_operario());
-                ps.setString(11, ciclo.get(i).getVigencia());
-                ps.setString(12, ciclo.get(i).getFecha());
-                ps.setString(13, ciclo.get(i).getOrden_lectura());
-                ps.setString(14, ciclo.get(i).getLeido());
-                ps.setString(15, ciclo.get(i).getCalle());
-                ps.setString(16, ciclo.get(i).getEdificio());
-                ps.setString(17, ciclo.get(i).getSuplemento_casa());
-                ps.setString(18, ciclo.get(i).getInterloc_comercial());
-                ps.setString(19, ciclo.get(i).getApellido());
-                ps.setString(20, ciclo.get(i).getNombre());
-                ps.setString(21, ciclo.get(i).getClase_instalacion());
+            for(int i = 0; i < datos.size(); i++) {
+                ps.setString(1, datos.get(i).getCodigo_porcion());
+                ps.setString(2, datos.get(i).getUni_lectura());
+                ps.setString(3, datos.get(i).getDoc_lectura());
+                ps.setString(4, datos.get(i).getCuenta_contrato());
+                ps.setString(5, datos.get(i).getMedidor());
+                ps.setString(6, datos.get(i).getLectura_ant());
+                ps.setString(7, datos.get(i).getLectura_act());
+                ps.setString(8, datos.get(i).getAnomalia_1());
+                ps.setString(9, datos.get(i).getAnomalia_2());
+                ps.setString(10, datos.get(i).getCodigo_operario());
+                ps.setString(11, datos.get(i).getVigencia());
+                ps.setString(12, datos.get(i).getFecha());
+                ps.setString(13, datos.get(i).getOrden_lectura());
+                ps.setString(14, datos.get(i).getLeido());
+                ps.setString(15, datos.get(i).getCalle());
+                ps.setString(16, datos.get(i).getEdificio());
+                ps.setString(17, datos.get(i).getSuplemento_casa());
+                ps.setString(18, datos.get(i).getInterloc_comercial());
+                ps.setString(19, datos.get(i).getApellido());
+                ps.setString(20, datos.get(i).getNombre());
+                ps.setString(21, datos.get(i).getClase_instalacion());
                 ps.executeUpdate();
-                System.out.println("SE INSERTO EL ELEMENTO: " + (i+1) + "/" + ciclo.size());
+                System.out.println("SE INSERTO EL ELEMENTO: " + (i+1) + "/" + datos.size());
             }
-            JOptionPane.showMessageDialog(null, "SE IMPORTO CORRECTAMENTE " + ciclo.size() + " REGISTROS");
+            JOptionPane.showMessageDialog(null, "SE IMPORTO CORRECTAMENTE " + datos.size() + " REGISTROS");
             ps.close();
             con.close();
         } catch (SQLException e) {
         }
         frame.dispose();
+        File D1 = new File("files\\Importe.csv");
+        File D2 = new File("files\\Repetidos.csv");
+        D1.delete();
+        D2.delete();
     }
 }
