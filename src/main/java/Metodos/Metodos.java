@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class metodos extends Vista {
+public class Metodos extends Vista {
     static int cols = 0;
     static Set<Lecturas> repetidos = new HashSet<>();
     static List<Lecturas> repetidosFinal = new ArrayList<>();
     static JPanel p1 = new JPanel(new BorderLayout());
     static JFrame frame = new JFrame(p1.getGraphicsConfiguration());
     //TAREAS
-    static Thread metodos = new Thread(() -> {
+    public static void setMetodos() {
         try {
             ConvertirXLSX();
             List<Lecturas> datos;
@@ -39,28 +39,30 @@ public class metodos extends Vista {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    });
-    static Thread cargando = new Thread(() -> {
-        try {
-            JProgressBar progressBar = new JProgressBar();
-            progressBar.setIndeterminate(true);
-            p1.add(new JLabel("CARGANDO REGISTROS. POR FAVOR, ESPERE...\n"), BorderLayout.CENTER);
-            p1.add(progressBar, BorderLayout.AFTER_LAST_LINE);
-            p1.setBackground(Color.CYAN);
-            frame.setUndecorated(true);
-            frame.getContentPane().add(p1);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-            frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-            frame.setVisible(true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    });
+    }
 
     public static void run() {
-        metodos.start();
-        cargando.start();
+        cargar();
+        setMetodos();
+    }
+
+    private static void cargar() {
+        new Thread(() -> {
+            try {
+                JProgressBar progressBar = new JProgressBar();
+                progressBar.setIndeterminate(true);
+                p1.add(new JLabel("CARGANDO REGISTROS. POR FAVOR, ESPERE...\n"), BorderLayout.CENTER);
+                p1.add(progressBar, BorderLayout.AFTER_LAST_LINE);
+                p1.setBackground(Color.CYAN);
+                frame.setVisible(true);
+                frame.getContentPane().add(p1);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
     //METODOS
 

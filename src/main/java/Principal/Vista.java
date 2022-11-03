@@ -1,6 +1,6 @@
 package Principal;
 
-import Metodos.metodos;
+import Metodos.Metodos;
 import Modelo.Tablas;
 
 import javax.swing.*;
@@ -53,7 +53,7 @@ public class Vista extends JFrame {
                         JOptionPane.showMessageDialog(null, "SELECCIONE UN ARCHIVO");
                     } else {
                         valueCBXT = (String) cbxTablas.getSelectedItem();
-                        metodos.run();
+                        Metodos.run();
                     }
                 } catch (Exception exc) {
                 }
@@ -72,7 +72,7 @@ public class Vista extends JFrame {
     }
 
     public void llenarTablas() {
-        ArrayList<Tablas> listaTablas = metodos.getTablas();
+        ArrayList<Tablas> listaTablas = Metodos.getTablas();
 
         cbxTablas.removeAllItems();
         for (int i = 0; i < listaTablas.size(); i++) {
