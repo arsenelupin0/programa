@@ -8,11 +8,6 @@
     <version>1.0</version>
     <dependencies>
         <dependency>
-            <groupId>com.speedment.jpastreamer.integration.spring</groupId>
-            <artifactId>spring-boot-jpastreamer-autoconfigure</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>RELEASE</version>

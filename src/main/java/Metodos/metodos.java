@@ -6,6 +6,7 @@ import Modelo.Tablas;
 import Principal.Vista;
 
 import com.aspose.cells.SaveFormat;
+import com.aspose.cells.Worksheet;
 import com.csvreader.CsvReader;
 import com.aspose.cells.Workbook;
 import javax.swing.*;
@@ -19,28 +20,79 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class metodos extends Vista {
+    public static boolean bool = true;
+     static int cols = 0;
+     static Set<Lecturas> repetidos = new HashSet<>();
+     static List<Lecturas> repetidosFinal = new ArrayList<>();
+     static JPanel p1 = new JPanel(new BorderLayout());
+     static JFrame frame = new JFrame(p1.getGraphicsConfiguration());
 
-    //METODO QUE LLAMA OTROS METODOS
-    public static void metodoImportar(){
-        List<Lecturas> datos = new ArrayList<Lecturas>();
-        List<Lecturas> datosRepetidos = new ArrayList<Lecturas>();
-        datos = importarCSV();
-        insertarSQL(datos);
-    }
+     public static void run() {
+         metodos.start();
+         cargando.start();
 
+     }
+     public static void close(){
+         metodos.stop();
+         cargando.stop();
+     }
+
+     //TAREAS
+     static Thread metodos = new Thread(() -> {
+             try {
+                 ConvertirXLSX();
+                 List<Lecturas> datos = new ArrayList<Lecturas>();
+                 datos = importarCSV();
+                 ConvertirCSV();
+                 insertarSQL(datos);
+             } catch(Exception e){
+                 throw new RuntimeException(e);
+             }
+     });
+
+     static Thread cargando = new Thread(() -> {
+         try {
+             JProgressBar progressBar = new JProgressBar();
+             progressBar.setIndeterminate(true);
+             p1.add(new JLabel("CARGANDO REGISTROS. POR FAVOR, ESPERE...\n"), BorderLayout.CENTER);
+             p1.add(progressBar, BorderLayout.AFTER_LAST_LINE);
+             p1.setBackground(Color.CYAN);
+             frame.setUndecorated(true);
+             frame.getContentPane().add(p1);
+             frame.pack();
+             frame.setLocationRelativeTo(null);
+             frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+             frame.setVisible(true);
+         } catch (Exception e) {
+             throw new RuntimeException(e);
+         }
+     });
     //METODOS
 
     //CONVERTIR ARCHIVO XLSX A CSV PARA LEER LOS DATOS MAS FACILMENTE
     public static void ConvertirXLSX () throws Exception {
-        Workbook workbook = new Workbook(rutaXLSX);
-        File RutaOutPut = new File("files\\Importe.csv");
-        workbook.save(""+RutaOutPut);
-        rutaCSV = ""+RutaOutPut;
+        Workbook wbXLSX = new Workbook(rutaXLSX);
+        Worksheet worksheet = wbXLSX.getWorksheets().get(0);
+        cols = worksheet.getCells().getMaxDataColumn();
+        cols=cols+1;
+        if (cols == 21){
+            File RutaOutPut = new File("files\\Importe.csv");
+            wbXLSX.save(""+RutaOutPut);
+            rutaCSV = ""+RutaOutPut;
+        } else {
+            JOptionPane.showMessageDialog(null, "error de estructura: VERIFIQUE LA ESTRUCTURA DEL ARCHIVO");
+            frame.setVisible(false);
+            close();
+        }
     }
     //CONVERTIR ARCHIVO CSV A XLMX PARA VISUALIZAR DE MANERA MAS OPTIMA LOS DATOS REPETIDOS
     public static void ConvertirCSV () throws Exception {
-        Workbook wb = new Workbook("files\\Repetidos.csv");
-        wb.save("files\\Repetidos.xlsx", SaveFormat.XLSX);
+        Workbook wbCSV = new Workbook("files\\Repetidos.csv");
+        wbCSV.save("files\\Repetidos.xlsx", SaveFormat.XLSX);
+        File D1 = new File("files\\Importe.csv");
+        File D2 = new File("files\\Repetidos.csv");
+        D1.delete();
+        D2.delete();
     }
 
     //OBTENER LISTA DE TABLAS
@@ -68,7 +120,8 @@ public class metodos extends Vista {
     }
 
     //PARA LEER LOS DATOS Y ALMACENARLOS EN UNA LISTA CON SU ESTRUCTURA
-    public static List<Lecturas> importarCSV(){
+    public static List<Lecturas> importarCSV() throws Exception {
+
         List<Lecturas> datos = new ArrayList<Lecturas>();
         try {
             CsvReader leerLecturas = new CsvReader(rutaCSV);
@@ -100,19 +153,19 @@ public class metodos extends Vista {
             leerLecturas.close();
 
             //NUEVA LISTA COMPLETA SIN DATOS REPETIDOS
-            System.out.println("COMPLETOS SIN REPETIDOS:");
             List<Lecturas> completa = datos.stream().distinct().collect(Collectors.toList());
+            System.out.println("COMPLETOS SIN REPETIDOS:");
             completa.forEach(System.out::println);
 
             //NUEVA LISTA DE DATOS REPETIDOS
-            Set<Lecturas> repetidos = new HashSet<>();
-            List<Lecturas> repetidosFinal = datos.stream().filter(lectura -> !repetidos.add(lectura)).collect(Collectors.toList());
+            repetidos = new HashSet<>();
+            repetidosFinal = datos.stream().filter(lectura -> !repetidos.add(lectura)).collect(Collectors.toList());
             System.out.println("REPETIDOS:");
             repetidosFinal.forEach(System.out::println);
 
             File csvFile = new File("files\\Repetidos.csv");
             PrintWriter write = new PrintWriter(csvFile);
-            String estructura = "COD_PORCION,COD_UNILEC,ID_DOC_LECTURA,CUENTA_CONTRATO,NUM_MEDIDOR,LEC_ANTERIOR,LEC_ACTUAL,COD_EVENTO1,COD_EVENTO2,COD_OPERARIO,VIGENCIA,\"TO_CHAR(REG_LECTURAS.FECHAEJE,'DD/MM/YYYYHH:MI:SSAM')\",ORDEN_LECTURA,LEIDO,CALLE,EDIFICIO,SUPLEM_CASA,INTERLOC_COMER,APELLIDO,NOMBRE2,CLASE_INSTALA";
+            String estructura = "COD_PORCION,COD_UNILEC,ID_DOC_LECTURA,CUENTA_CONTRATO,NUM_MEDIDOR,LEC_ANTERIOR,LEC_ACTUAL,COD_EVENTO1,COD_EVENTO2,COD_OPERARIO,VIGENCIA,FECHA,ORDEN_LECTURA,LEIDO,CALLE,EDIFICIO,SUPLEM_CASA,INTERLOC_COMER,APELLIDO,NOMBRE2,CLASE_INSTALA";
             write.println(estructura);
             for (int j = 0; j < repetidosFinal.size(); j++){
                 write.print(repetidosFinal.get(j).getCodigo_porcion()+",");
@@ -139,6 +192,7 @@ public class metodos extends Vista {
                 write.println();
             }
             write.close();
+
             datos = completa;
 
         } catch (FileNotFoundException e) {
@@ -151,21 +205,12 @@ public class metodos extends Vista {
 
     // PARA INSERTAR LOS DATOS A LA BASE DE DATOS
     public static void insertarSQL(List<Lecturas> datos) {
-        JPanel p1 = new JPanel(new BorderLayout());
-        JFrame frame = new JFrame(p1.getGraphicsConfiguration());
-        p1.add(new JLabel("CARGANDO REGISTROS. POR FAVOR, ESPERE...\n"), BorderLayout.CENTER);
-        p1.setBackground(Color.CYAN);
-        frame.setUndecorated(true);
-        frame.getContentPane().add(p1);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        frame.setVisible(true);
 
-        System.out.println("SE VAN A INSERTAR: " + datos.size() + " REGISTROS\n");
+
+        System.out.println("SE VAN A INSERTAR: " + datos.size() + " REGISTROS en "+valueCBXT+"\n");
         conexion_lectura sql = new conexion_lectura();
         Connection con = sql.conectarSQL();
-        String query = "INSERT INTO "+valueCBXT+"(codigo_porcion, uni_lectura, doc_lectura, cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "INSERT OR IGNORE INTO "+valueCBXT+"(codigo_porcion, uni_lectura,doc_lectura,cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try {
             PreparedStatement ps = (PreparedStatement) con.prepareStatement(query);
             for(int i = 0; i < datos.size(); i++) {
@@ -193,15 +238,18 @@ public class metodos extends Vista {
                 ps.executeUpdate();
                 System.out.println("SE INSERTO EL ELEMENTO: " + (i+1) + "/" + datos.size());
             }
+
+            frame.setVisible(false);
+
+            if (repetidosFinal.size() == 0){
+                JOptionPane.showMessageDialog(null,"NO SE ENCONTRO NINGUN REGISTRO REPETIDO EN EL ARCHIVO");
+            } else {
+                JOptionPane.showMessageDialog(null,"SE ENCONTRO "+repetidosFinal.size()+" REGISTROS REPETIDOS EN EL ARCHIVO");
+            }
             JOptionPane.showMessageDialog(null, "SE IMPORTO CORRECTAMENTE " + datos.size() + " REGISTROS");
             ps.close();
             con.close();
         } catch (SQLException e) {
         }
-        frame.dispose();
-        File D1 = new File("files\\Importe.csv");
-        File D2 = new File("files\\Repetidos.csv");
-        D1.delete();
-        D2.delete();
     }
 }
