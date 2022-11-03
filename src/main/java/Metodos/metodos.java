@@ -29,25 +29,20 @@ public class metodos extends Vista implements Runnable {
      static JFrame frame = new JFrame(p1.getGraphicsConfiguration());
 
     @Override
-    public static void run() {
-        metodos1a1.start();
-        cargando.start();
+    public void run(){
+
     }
 
      //TAREAS
-    static Thread metodos1a1 = new Thread(()->{
-         try {
-             ConvertirXLSX();
-             List<Lecturas> datos = new ArrayList<Lecturas>();
-             datos = importarCSV();
-             ConvertirCSV();
-             insertarSQL(datos);
-         } catch (Exception e) {
-             throw new RuntimeException(e);
-         }
-     });
+    public static synchronized void met() throws Exception {
+        ConvertirXLSX();
+        List<Lecturas> datos = new ArrayList<Lecturas>();
+        datos = importarCSV();
+        ConvertirCSV();
+        insertarSQL(datos);
+    }
 
-    static Thread cargando = new Thread(() -> {
+    public static void cargando() {
          try {
              JProgressBar progressBar = new JProgressBar();
              progressBar.setIndeterminate(true);
@@ -63,7 +58,7 @@ public class metodos extends Vista implements Runnable {
          } catch (Exception e) {
              throw new RuntimeException(e);
          }
-     });
+     }
     //METODOS
 
     //CONVERTIR ARCHIVO XLSX A CSV PARA LEER LOS DATOS MAS FACILMENTE

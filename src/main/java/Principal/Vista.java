@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 
+import static Metodos.metodos.*;
+
 public class Vista extends JFrame {
     public JButton btnSelectArchivo;
     public JButton btnImportar;
@@ -53,7 +55,8 @@ public class Vista extends JFrame {
                         JOptionPane.showMessageDialog(null,"SELECCIONE UN ARCHIVO");
                     } else {
                         valueCBXT = (String) cbxTablas.getSelectedItem();
-                        metodos.run();
+                        Thread importarHilo = new Thread(new metodos());
+                        importarHilo.start();
                     }
                 } catch (Exception exc){
                 }
@@ -68,7 +71,7 @@ public class Vista extends JFrame {
     }
 
     public void llenarTablas(){
-        ArrayList<Tablas> listaTablas = metodos.getTablas();
+        ArrayList<Tablas> listaTablas = getTablas();
 
         cbxTablas.removeAllItems();
         for(int i = 0; i < listaTablas.size(); i++){
