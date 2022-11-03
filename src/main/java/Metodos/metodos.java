@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class metodos extends Vista {
-    public static boolean bool = true;
      static int cols = 0;
      static Set<Lecturas> repetidos = new HashSet<>();
      static List<Lecturas> repetidosFinal = new ArrayList<>();
@@ -31,10 +30,6 @@ public class metodos extends Vista {
          metodos.start();
          cargando.start();
 
-     }
-     public static void close(){
-         metodos.stop();
-         cargando.stop();
      }
 
      //TAREAS
@@ -82,7 +77,6 @@ public class metodos extends Vista {
         } else {
             JOptionPane.showMessageDialog(null, "error de estructura: VERIFIQUE LA ESTRUCTURA DEL ARCHIVO");
             frame.setVisible(false);
-            close();
         }
     }
     //CONVERTIR ARCHIVO CSV A XLMX PARA VISUALIZAR DE MANERA MAS OPTIMA LOS DATOS REPETIDOS
