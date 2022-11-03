@@ -9,6 +9,8 @@ import com.aspose.cells.SaveFormat;
 import com.aspose.cells.Worksheet;
 import com.csvreader.CsvReader;
 import com.aspose.cells.Workbook;
+import org.junit.internal.runners.statements.RunAfters;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -19,32 +21,33 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class metodos extends Vista {
+public class metodos extends Vista implements Runnable {
      static int cols = 0;
      static Set<Lecturas> repetidos = new HashSet<>();
      static List<Lecturas> repetidosFinal = new ArrayList<>();
      static JPanel p1 = new JPanel(new BorderLayout());
      static JFrame frame = new JFrame(p1.getGraphicsConfiguration());
 
-     public static void run() {
-         metodos.start();
-         cargando.start();
-     }
+    @Override
+    public static void run() {
+        metodos1a1.start();
+        cargando.start();
+    }
 
      //TAREAS
-     static Thread metodos = new Thread(() -> {
-             try {
-                 ConvertirXLSX();
-                 List<Lecturas> datos = new ArrayList<Lecturas>();
-                 datos = importarCSV();
-                 ConvertirCSV();
-                 insertarSQL(datos);
-             } catch(Exception e){
-                 throw new RuntimeException(e);
-             }
+    static Thread metodos1a1 = new Thread(()->{
+         try {
+             ConvertirXLSX();
+             List<Lecturas> datos = new ArrayList<Lecturas>();
+             datos = importarCSV();
+             ConvertirCSV();
+             insertarSQL(datos);
+         } catch (Exception e) {
+             throw new RuntimeException(e);
+         }
      });
 
-     static Thread cargando = new Thread(() -> {
+    static Thread cargando = new Thread(() -> {
          try {
              JProgressBar progressBar = new JProgressBar();
              progressBar.setIndeterminate(true);
@@ -185,9 +188,7 @@ public class metodos extends Vista {
                 write.println();
             }
             write.close();
-
             datos = completa;
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -198,15 +199,13 @@ public class metodos extends Vista {
 
     // PARA INSERTAR LOS DATOS A LA BASE DE DATOS
     public static void insertarSQL(List<Lecturas> datos) {
-
-
-        System.out.println("SE VAN A INSERTAR: " + datos.size() + " REGISTROS en "+valueCBXT+"\n");
+        System.out.println("SE VAN A INSERTAR: " + datos.size() + " REGISTROS en " + valueCBXT + "\n");
         conexion_lectura sql = new conexion_lectura();
         Connection con = sql.conectarSQL();
-        String query = "INSERT OR IGNORE INTO "+valueCBXT+"(codigo_porcion, uni_lectura,doc_lectura,cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "INSERT OR IGNORE INTO " + valueCBXT + "(codigo_porcion, uni_lectura,doc_lectura,cuenta_contrato, medidor, lectura_ant, lectura_act, anomalia_1, anomalia_2, codigo_operario, vigencia, fecha, orden_lectura, leido, calle, edificio, suplemento_casa, interloc_comercial, apellido, nombre, clase_instalacion) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try {
             PreparedStatement ps = (PreparedStatement) con.prepareStatement(query);
-            for(int i = 0; i < datos.size(); i++) {
+            for (int i = 0; i < datos.size(); i++) {
                 ps.setString(1, datos.get(i).getCodigo_porcion());
                 ps.setString(2, datos.get(i).getUni_lectura());
                 ps.setString(3, datos.get(i).getDoc_lectura());
@@ -229,15 +228,13 @@ public class metodos extends Vista {
                 ps.setString(20, datos.get(i).getNombre());
                 ps.setString(21, datos.get(i).getClase_instalacion());
                 ps.executeUpdate();
-                System.out.println("SE INSERTO EL ELEMENTO: " + (i+1) + "/" + datos.size());
+                System.out.println("SE INSERTO EL ELEMENTO: " + (i + 1) + "/" + datos.size());
             }
-
             frame.setVisible(false);
-
-            if (repetidosFinal.size() == 0){
-                JOptionPane.showMessageDialog(null,"NO SE ENCONTRO NINGUN REGISTRO REPETIDO EN EL ARCHIVO");
+            if (repetidosFinal.size() == 0) {
+                JOptionPane.showMessageDialog(null, "NO SE ENCONTRO NINGUN REGISTRO REPETIDO EN EL ARCHIVO");
             } else {
-                JOptionPane.showMessageDialog(null,"SE ENCONTRO "+repetidosFinal.size()+" REGISTROS REPETIDOS EN EL ARCHIVO");
+                JOptionPane.showMessageDialog(null, "SE ENCONTRO " + repetidosFinal.size() + " REGISTROS REPETIDOS EN EL ARCHIVO");
             }
             JOptionPane.showMessageDialog(null, "SE IMPORTO CORRECTAMENTE " + datos.size() + " REGISTROS");
             ps.close();
