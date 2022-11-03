@@ -41,11 +41,6 @@ public class Vista extends JFrame {
                 if (archivoSeleccionado != null) {
                     jtxtRuta.setText("" + archivoSeleccionado);
                     rutaXLSX = "" + archivoSeleccionado;
-                    try {
-                        metodos.ConvertirXLSX();
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                    }
                 }
             }
         });
@@ -54,6 +49,7 @@ public class Vista extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    metodos.ConvertirXLSX();
                     valueCBXT = (String) cbxTablas.getSelectedItem();
                     if (rutaXLSX == null){
                         JOptionPane.showMessageDialog(null,"SELECCIONE UN ARCHIVO");
