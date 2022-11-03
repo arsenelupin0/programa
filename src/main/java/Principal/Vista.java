@@ -1,4 +1,3 @@
-
 package Principal;
 
 import Metodos.metodos;
@@ -11,15 +10,16 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class Vista extends JFrame {
+    public static String rutaXLSX;
+    public static String rutaCSV;
+    public static String valueCBXT;
     public JButton btnSelectArchivo;
     public JButton btnImportar;
     public JTextField jtxtRuta;
     public JPanel mainPanel;
     public JComboBox cbxTablas;
     public JButton btnCrear;
-    public static String rutaXLSX;
-    public static String rutaCSV;
-    public static String valueCBXT;
+
     public Vista() {
         setContentPane(mainPanel);
         setTitle("ACUEDUCTO");
@@ -49,13 +49,13 @@ public class Vista extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    if (rutaXLSX == null){
-                        JOptionPane.showMessageDialog(null,"SELECCIONE UN ARCHIVO");
+                    if (rutaXLSX == null) {
+                        JOptionPane.showMessageDialog(null, "SELECCIONE UN ARCHIVO");
                     } else {
                         valueCBXT = (String) cbxTablas.getSelectedItem();
                         metodos.run();
                     }
-                } catch (Exception exc){
+                } catch (Exception exc) {
                 }
             }
         });
@@ -67,17 +67,16 @@ public class Vista extends JFrame {
         });
     }
 
-    public void llenarTablas(){
-        ArrayList<Tablas> listaTablas = metodos.getTablas();
-
-        cbxTablas.removeAllItems();
-        for(int i = 0; i < listaTablas.size(); i++){
-            cbxTablas.addItem(listaTablas.get(i).nombre_tabla);
-        }
-    }
-
     public static void main(String[] args) {
         Vista JFrame = new Vista();
     }
 
+    public void llenarTablas() {
+        ArrayList<Tablas> listaTablas = metodos.getTablas();
+
+        cbxTablas.removeAllItems();
+        for (int i = 0; i < listaTablas.size(); i++) {
+            cbxTablas.addItem(listaTablas.get(i).nombre_tabla);
+        }
+    }
 }

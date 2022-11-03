@@ -1,16 +1,20 @@
 package Conexiones;
+
 import java.io.File;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 public class conexion_lectura {
     File RutaDB = new File("dbs\\lectura");
-    String url = ""+RutaDB;
+    String url = "" + RutaDB;
 
-    public Connection conectarSQL(){
+    public Connection conectarSQL() {
         Connection con = null;
         try {
-            con = (Connection) DriverManager.getConnection("jdbc:sqlite:" + url);
+            con = DriverManager.getConnection("jdbc:sqlite:" + url);
             System.out.println(con);
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return con;
