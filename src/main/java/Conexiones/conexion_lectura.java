@@ -9,6 +9,7 @@ public class conexion_lectura {
         Connection con = null;
         try {
             con = (Connection) DriverManager.getConnection("jdbc:sqlite:" + url);
+            System.out.println(con);
         } catch(SQLException e) {
             e.printStackTrace();
         }

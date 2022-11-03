@@ -29,7 +29,6 @@ public class metodos extends Vista {
      public static void run() {
          metodos.start();
          cargando.start();
-
      }
 
      //TAREAS
